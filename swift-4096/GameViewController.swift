@@ -8,9 +8,12 @@
 
 import UIKit
 
-class GameViewController : ViewController {
+class GameViewController : ViewController, GameModelProtocol {
     
     var scoreView: ScoreView?
+    var gameboardView: GameboardView?
+    
+    var game: GameModel?
     
     var paddingTop: CGFloat = 150.0
     
@@ -43,6 +46,15 @@ class GameViewController : ViewController {
         setupGameboard()
         // スワイプの動作を定義する
         setupSwipeControls()
+        
+        let game = GameModel(
+            dimension: dimension,
+            goal: goal,
+            delegate: self)
+
+        game.start()
+        
+        self.game = game
     }
     
     func setupScore() {
@@ -78,6 +90,22 @@ class GameViewController : ViewController {
         gameboardView.frame.origin.x = getOffsetXOfCenter(view: gameboardView)
         gameboardView.frame.origin.y = paddingTop + scoreViewHeight! + 20.0
         view.addSubview(gameboardView)
+        
+        self.gameboardView = gameboardView
+    }
+    
+    func changeScore(score: Int) {
+        let view = self.scoreView!
+        view.score = score
+    }
+    
+    func reset() {
+        
+    }
+    
+    func insertTile(position: (Int, Int), value: Int) {
+        let view = self.gameboardView!
+        view.placeNumberTile(position, value: value)
     }
     
     func setupSwipeControls() {

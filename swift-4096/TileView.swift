@@ -12,13 +12,10 @@ class TileView : UIView {
     
     init(frame f: CGRect, backgroundColor bc: UIColor, cornerRadius cr: CGFloat) {
         super.init(frame: f)
-        setup(backgroundColor: bc, cornerRadius: cr)
-    }
-    
-    func setup(backgroundColor bc: UIColor, cornerRadius cr: CGFloat) {
         backgroundColor = bc
         layer.cornerRadius = cr
     }
+
     
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder : NSCoder) not supported")
