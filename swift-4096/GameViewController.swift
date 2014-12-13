@@ -14,7 +14,15 @@ class GameViewController : ViewController {
     
     var paddingTop: CGFloat = 150.0
     
+    var dimension: Int
+    var goal: Int
+    
+    var gameboardWidth: CGFloat = 320.0
+    var tileWidth: CGFloat = 60.0
+    
     init(dimension d: Int, goal g: Int) {
+        dimension = d
+        goal = g
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -57,7 +65,19 @@ class GameViewController : ViewController {
     }
     
     func setupGameboard() {
+        let gameboardView = GameboardView(
+            dimension: dimension,
+            width: gameboardWidth,
+            cornerRadius: 6.0,
+            tileWidth: tileWidth,
+            backgroundColor: UIColor.blackColor(),
+            tileBackgroundColor: UIColor.darkGrayColor()
+        )
         
+        let scoreViewHeight = scoreView?.height
+        gameboardView.frame.origin.x = getOffsetXOfCenter(view: gameboardView)
+        gameboardView.frame.origin.y = paddingTop + scoreViewHeight! + 20.0
+        view.addSubview(gameboardView)
     }
     
     func setupSwipeControls() {
