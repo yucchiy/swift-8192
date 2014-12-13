@@ -21,7 +21,8 @@ class ViewController: UIViewController {
     }
     
     @IBAction func onClickGameStartButton(sender: UIButton) {
-        NSLog("called onClickGameStartButton")
+        let gameViewController = GameViewController(dimension: 4, goal: 4096)
+        presentViewController(gameViewController, animated: false, completion: nil)
     }
 }
 

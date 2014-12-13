@@ -13,6 +13,8 @@
 		F566F5A91A3C27BC00DF6589 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F566F5A81A3C27BC00DF6589 /* Images.xcassets */; };
 		F566F5AC1A3C27BC00DF6589 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = F566F5AA1A3C27BC00DF6589 /* LaunchScreen.xib */; };
 		F566F5B81A3C27BD00DF6589 /* swift_4096Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F566F5B71A3C27BD00DF6589 /* swift_4096Tests.swift */; };
+		F566F5C21A3C2A6B00DF6589 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F566F5C11A3C2A6B00DF6589 /* GameViewController.swift */; };
+		F566F5C71A3C2DEE00DF6589 /* ScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F566F5C61A3C2DEE00DF6589 /* ScoreView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +38,8 @@
 		F566F5B11A3C27BD00DF6589 /* swift-4096Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "swift-4096Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F566F5B61A3C27BD00DF6589 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F566F5B71A3C27BD00DF6589 /* swift_4096Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = swift_4096Tests.swift; sourceTree = "<group>"; };
+		F566F5C11A3C2A6B00DF6589 /* GameViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		F566F5C61A3C2DEE00DF6589 /* ScoreView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScoreView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,12 +81,15 @@
 		F566F59E1A3C27BC00DF6589 /* swift-4096 */ = {
 			isa = PBXGroup;
 			children = (
+				F566F5C51A3C2DE100DF6589 /* Models */,
+				F566F5C41A3C2DD900DF6589 /* Views */,
 				F566F5A11A3C27BC00DF6589 /* AppDelegate.swift */,
 				F566F5A31A3C27BC00DF6589 /* ViewController.swift */,
 				F566F5A51A3C27BC00DF6589 /* Main.storyboard */,
 				F566F5A81A3C27BC00DF6589 /* Images.xcassets */,
 				F566F5AA1A3C27BC00DF6589 /* LaunchScreen.xib */,
 				F566F59F1A3C27BC00DF6589 /* Supporting Files */,
+				F566F5C11A3C2A6B00DF6589 /* GameViewController.swift */,
 			);
 			path = "swift-4096";
 			sourceTree = "<group>";
@@ -110,6 +117,21 @@
 				F566F5B61A3C27BD00DF6589 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		F566F5C41A3C2DD900DF6589 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F566F5C61A3C2DEE00DF6589 /* ScoreView.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		F566F5C51A3C2DE100DF6589 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -213,6 +235,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F566F5A41A3C27BC00DF6589 /* ViewController.swift in Sources */,
+				F566F5C71A3C2DEE00DF6589 /* ScoreView.swift in Sources */,
+				F566F5C21A3C2A6B00DF6589 /* GameViewController.swift in Sources */,
 				F566F5A21A3C27BC00DF6589 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
