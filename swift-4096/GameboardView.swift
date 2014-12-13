@@ -47,19 +47,22 @@ class GameboardView : UIView {
     }
     
     func setupBackground(tileBackgroundColor tbc: UIColor) {
-        var posX = tilePadding, posY = tilePadding
         for y in 0..<dimension {
-            posY = CGFloat(y) * (tileWidth + tilePadding) + tilePadding
             for x in 0..<dimension {
-                posX = CGFloat(x) * (tileWidth + tilePadding) + tilePadding
                 let tile = TileView(
-                    frame: CGRect(x: posX, y: posY, width: tileWidth, height: tileWidth),
+                    frame: CGRect(
+                        x: getPositionOfTile(x), y: getPositionOfTile(y), width: tileWidth, height: tileWidth
+                    ),
                     backgroundColor: tbc,
                     cornerRadius: 4.0
                 )
                 self.addSubview(tile)
             }
         }
+    }
+    
+    func getPositionOfTile(pos: Int) -> CGFloat {
+        return CGFloat(pos) * (tileWidth + tilePadding) + tilePadding
     }
 
 }
