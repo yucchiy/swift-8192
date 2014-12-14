@@ -9,21 +9,31 @@
 import UIKit
 
 class NumberTileView : UIView {
+    
+    var value: Int {
+        didSet {
+            numberLabel.text = "\(value)"
+        }
+    }
+    
+    var numberLabel: UILabel
  
     init(value v: Int, font ft: UIFont, frame f: CGRect, textColor tc: UIColor, backgroundColor bc: UIColor, cornerRadius cr: CGFloat) {
-        
+
+        numberLabel = UILabel(frame: f)
+        value = v
         super.init(frame: f)
+    
+
         backgroundColor = bc
         layer.cornerRadius = cr
 
-        let labelView = UILabel(frame: f)
-        
-        labelView.font = ft
-        labelView.text = "\(v)"
-        labelView.textAlignment = NSTextAlignment.Center
-        labelView.textColor = tc
-        
-        addSubview(labelView)
+        numberLabel.font = ft
+        numberLabel.textAlignment = NSTextAlignment.Center
+        numberLabel.textColor = tc
+        numberLabel.text = "\(value)"
+
+        self.addSubview(numberLabel)
     }
     
     required init(coder aDecoder: NSCoder) {

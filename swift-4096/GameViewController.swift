@@ -108,6 +108,11 @@ class GameViewController : ViewController, GameModelProtocol {
         view.placeNumberTile(position, value: value)
     }
     
+    func move(from f: (Int, Int), to t: (Int, Int), value v: Int) {
+        let view = self.gameboardView!
+        view.move(from: f, to: t, value: v)
+    }
+    
     func setupSwipeControls() {
         let upSwipe = UISwipeGestureRecognizer(target: self, action: Selector("up:"))
         upSwipe.numberOfTouchesRequired = 1
@@ -132,24 +137,28 @@ class GameViewController : ViewController, GameModelProtocol {
     
     @objc(up:)
     func upCommand(r: UIGestureRecognizer!) {
-        NSLog("UP")
+        sendCommand(GameModel.MoveCommand(direction: GameModel.Direction.Up))
     }
     
     @objc(down:)
     func downCommand(r: UIGestureRecognizer!) {
-        NSLog("DOWN")
+        sendCommand(GameModel.MoveCommand(direction: GameModel.Direction.Down))
     }
     
     @objc(left:)
     func leftCommand(r: UIGestureRecognizer!) {
-        NSLog("LEFT")
+        sendCommand(GameModel.MoveCommand(direction: GameModel.Direction.Left))
     }
 
     @objc(right:)
     func rightCommand(r: UIGestureRecognizer!) {
-        NSLog("RIGHT")
+       sendCommand(GameModel.MoveCommand(direction: GameModel.Direction.Right))
     }
     
+    func sendCommand(command: GameModel.MoveCommand) {
+        let g = game!
+        g.move(command: command)
+    }
     
     // vをこのViewController内で配置する際の左上座標を返す
     func getOffsetXOfCenter(view v: UIView) -> CGFloat {
