@@ -8,6 +8,10 @@
 
 import UIKit
 
+protocol GameboardViewProtocol {
+    func onFinishedAnimation()
+}
+
 class GameboardView : UIView {
     
     var dimension: Int
@@ -19,30 +23,27 @@ class GameboardView : UIView {
     
     var board: Board
     
-    let tilePopStartScale: CGFloat = 0.1
-    let tilePopMaxScale: CGFloat = 1.1
-    let tilePopDelay: NSTimeInterval = 0.05
-    let tileExpandTime: NSTimeInterval = 0.18
-    let tileContractTime: NSTimeInterval = 0.08
-    
-    let tileMergeStartScale: CGFloat = 1.0
-    let tileMergeExpandTime: NSTimeInterval = 0.08
-    let tileMergeContractTime: NSTimeInterval = 0.08
-    
     let perSquareSlideDuration: NSTimeInterval = 0.08
     
-    init(dimension d: Int, width w: CGFloat, cornerRadius cr: CGFloat, tileWidth tw: CGFloat, backgroundColor bc: UIColor, tileBackgroundColor tbc: UIColor) {
+    var tilesAnimations: [TilesAnimation]
+    
+    var delegate: GameboardViewProtocol
+    
+    init(dimension d: Int, delegate dg: GameboardViewProtocol, width w: CGFloat, cornerRadius cr: CGFloat, tileWidth tw: CGFloat, backgroundColor bc: UIColor, tileBackgroundColor tbc: UIColor) {
         
         dimension = d
         width = w
         
         tileWidth = tw
         
+        delegate = dg
+        
         board = Board(dimension: dimension)
         
         let totalTilesPadding = (width - tileWidth * CGFloat(dimension))
         tilePadding = totalTilesPadding / CGFloat(dimension + 1)
         
+        tilesAnimations = Array<TilesAnimation>()
         super.init(frame: CGRect(x: 0, y: 0, width: width, height: width))
         
         setup(
@@ -101,32 +102,82 @@ class GameboardView : UIView {
         return CGFloat(pos) * (tileWidth + tilePadding) + tilePadding
     }
     
-    func move(from f: (Int, Int), to t: (Int, Int), value v: Int) {
-        let (sx, sy) = f
-        let (tx, ty) = t
-
-        var fromTileView = board[sy, sx]!
-        let toTileView = board[ty, tx]
-        
-        var finalFrame = fromTileView.frame
-        finalFrame.origin.x = getPositionOfTile(tx)
-        finalFrame.origin.y = getPositionOfTile(ty)
-        
-        board[sy, sx] = nil
-        board[ty, tx] = fromTileView
-        
+    func pushMoves(moves: [GameModel.MoveInfo]) {
+        var anim = TilesAnimation()
+        if moves.count > 0 {
+            for moveInfo in moves {
+                anim.animations.append(MoveAnimation(from: moveInfo.from, to: moveInfo.to, value: moveInfo.value))
+            }
+            tilesAnimations.append(anim)
+        }
+    }
+    
+    func fireAnimation() {
         UIView.animateWithDuration(perSquareSlideDuration,
             delay: 0.0,
             options: UIViewAnimationOptions.BeginFromCurrentState,
             animations: { () -> Void in
-                fromTileView.frame = finalFrame
+                if self.tilesAnimations.count == 0 {
+                    return
+                }
+
+                var anims = self.tilesAnimations.first!
+                if anims.animations.count > 0 {
+                    for anim in anims.animations {
+                        let (sx, sy) = anim.from
+                        let (tx, ty) = anim.to
+                        
+                        var fromTileView = self.board[sy, sx]!
+                        let toTileView = self.board[ty, tx]
+
+                        var finalFrame = fromTileView.frame
+                        finalFrame.origin.x = self.getPositionOfTile(tx)
+                        finalFrame.origin.y = self.getPositionOfTile(ty)
+                        
+                        self.board[sy, sx] = nil
+                        self.board[ty, tx] = fromTileView
+                        UIView.animateWithDuration(0,
+                            delay: 0.0,
+                            options: UIViewAnimationOptions.BeginFromCurrentState,
+                            animations: { () -> Void in
+                                fromTileView.frame = finalFrame
+                            },
+                            
+                            completion: { (finished: Bool) -> Void in
+                                toTileView?.removeFromSuperview()
+                                fromTileView.value = fromTileView.value > anim.value ? fromTileView.value : anim.value
+                            }
+                        )
+                    }
+                }
             },
+            
             completion: { (finished: Bool) -> Void in
-                fromTileView.value = v
-                toTileView?.removeFromSuperview()
+                if self.tilesAnimations.count > 0 {
+                    self.tilesAnimations.removeAtIndex(0)
+                    self.fireAnimation()
+                } else {
+                    self.delegate.onFinishedAnimation()
+                }
             }
         )
-    }   
+    }
+    
+    func debug() {
+        var str = "\n"
+        for y in 0..<dimension {
+            str += "| "
+            for x in 0..<dimension {
+                if self.board[y, x] == nil {
+                    str += "   | "
+                } else {
+                    str += " * | "
+                }
+            }
+            str += "\n"
+        }
+        NSLog(str)
+    }
     
     struct Board {
         
@@ -152,6 +203,26 @@ class GameboardView : UIView {
         func inBound(position: (Int, Int)) -> Bool {
             let (x, y) = position
             return x >= 0 && x < dimension && y >= 0 && y < dimension
+        }
+    }
+    
+    // 1タイルのアニメーション
+    struct MoveAnimation {
+        var from: (Int, Int)
+        var to: (Int, Int)
+        var value: Int
+        init(from f: (Int, Int), to t: (Int, Int), value v: Int) {
+            from = f
+            to = t
+            value = v
+        }
+    }
+    
+    // 1度に移動するタイルのアニメーション
+    struct TilesAnimation {
+        var animations: [MoveAnimation]
+        init() {
+            animations = Array<MoveAnimation>()
         }
     }
 }

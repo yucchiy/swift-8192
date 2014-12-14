@@ -40,21 +40,24 @@ class GameViewController : ViewController, GameModelProtocol {
     
     func setup() {
         view.backgroundColor = UIColor.whiteColor()
+        
         // スコアボードのビューを定義する
         setupScore()
-        // ゲームボードのビューを定義する
-        setupGameboard()
-        // スワイプの動作を定義する
-        setupSwipeControls()
         
         let game = GameModel(
             dimension: dimension,
             goal: goal,
             delegate: self)
-
-        game.start()
         
         self.game = game
+
+        // ゲームボードのビューを定義する
+        setupGameboard()
+        // スワイプの動作を定義する
+        setupSwipeControls()
+        
+        game.start()
+        
     }
     
     func setupScore() {
@@ -77,8 +80,10 @@ class GameViewController : ViewController, GameModelProtocol {
     }
     
     func setupGameboard() {
+        let delegate = game!
         let gameboardView = GameboardView(
             dimension: dimension,
+            delegate: delegate,
             width: gameboardWidth,
             cornerRadius: 6.0,
             tileWidth: tileWidth,
@@ -108,9 +113,14 @@ class GameViewController : ViewController, GameModelProtocol {
         view.placeNumberTile(position, value: value)
     }
     
-    func move(from f: (Int, Int), to t: (Int, Int), value v: Int) {
+    func pushMoves(moves: [GameModel.MoveInfo]) {
         let view = self.gameboardView!
-        view.move(from: f, to: t, value: v)
+        view.pushMoves(moves)
+    }
+    
+    func fireAnimation() {
+        let view = self.gameboardView!
+        view.fireAnimation()
     }
     
     func setupSwipeControls() {

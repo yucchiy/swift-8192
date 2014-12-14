@@ -12,10 +12,11 @@ protocol GameModelProtocol : class {
     func changeScore(score: Int)
     func reset()
     func insertTile(position: (Int, Int), value: Int)
-    func move(from f: (Int, Int), to t: (Int, Int), value v: Int)
+    func pushMoves(moves: [GameModel.MoveInfo])
+    func fireAnimation()
 }
 
-class GameModel : NSObject {
+class GameModel : NSObject, GameboardViewProtocol {
     
     var dimension: Int
     var goal: Int
@@ -83,6 +84,9 @@ class GameModel : NSObject {
         
         inAction = true
         
+        // 動かすタイルの順番を定義する
+        // 例えば上に動かす場合は, 上にあるタイルから順番に
+        // 動かさないと正しい動作を行えない
         var xs: [Int]
         var ys: [Int]
         switch c.direction {
@@ -99,26 +103,24 @@ class GameModel : NSObject {
             xs = Array(1..<dimension)
             ys = Array(0..<dimension)
         }
-        
         prepare()
-        
-        var hasNextStep = false
+
+        var moves = Array<MoveInfo>()
         do {
-            hasNextStep = false
+            moves.removeAll(keepCapacity: false)
             for y in ys {
                 for x in xs {
-                    // 1度でもタイルが動けば処理をつづける
-                    hasNextStep |= moveAndMerge((x, y), command: c)
+                    let moveInfo = moveAndMerge((x, y), command: c)
+                    if moveInfo != nil {
+                        moves.append(moveInfo!)
+                    }
                 }
             }
-        } while hasNextStep
+            
+            delegate.pushMoves(moves)
+        } while !moves.isEmpty
         
-        // Todo: 判定
-        
-        insertTile(getRandomEmptyPosition(), value: 2)
-        debug()
-        
-        inAction = false
+        delegate.fireAnimation()
     }
     
     // 移動前の準備
@@ -135,6 +137,15 @@ class GameModel : NSObject {
         }
     }
     
+    func onFinishedAnimation() {
+        // Todo: 判定
+        
+        // ランダムにタイルを突っ込む
+        insertTile(getRandomEmptyPosition(), value: 2)
+        inAction = false
+    }
+    
+    // デバッグ用関数
     func debug() {
         var str = "\n"
         for y in 0..<dimension {
@@ -152,8 +163,8 @@ class GameModel : NSObject {
         NSLog(str)
     }
     
-    // タイルの移動と統合を行って、実際に動きがあったかどうかをブール値で返す
-    func moveAndMerge(position: (Int, Int), command: MoveCommand) -> Bool {
+    // タイルの移動と統合を行って、動いた情報を返す
+    func moveAndMerge(position: (Int, Int), command: MoveCommand) -> MoveInfo? {
         let (x, y) = position
         
         var value: Int
@@ -161,7 +172,7 @@ class GameModel : NSObject {
         switch gameboard[y, x] {
         case .Empty:
             // 該当する場所が空のタイルであればなにもしない
-            return false
+            return nil
         case let .Tile(v, m):
             value = v
             merged = m
@@ -169,35 +180,33 @@ class GameModel : NSObject {
         }
         
         let (nx, ny) = getNextPosition(position, command: command)
-        if !gameboard.inBound((nx, ny)) {
-            // タイルの移動先がボード外ならばなにもしない
-            return false
-        } else {
+        if gameboard.inBound((nx, ny)) {
+            // 移動後のタイルがボード内に入るように
             switch gameboard[ny, nx] {
             case .Empty:
                 // 移動先が空のタイル
                 // そのまま移動
                 gameboard[y, x] = Tile.Empty
                 gameboard[ny, nx] = Tile.Tile(value, merged)
-                delegate.move(from: (x, y), to: (nx, ny), value: value)
+                NSLog("Move: \((x, y)) => \((nx, ny))")
+                return MoveInfo(from: (x, y), to: (nx, ny), value: value)
             case let .Tile(value_, merged_):
                 if (!merged && !merged_ && value == value_) {
                     // どちらのタイルも非統合でかつ値が同じ場合の
                     // 時のみタイルの統合を行う
                     gameboard[y, x] = Tile.Empty
                     gameboard[ny, nx] = Tile.Tile(value * 2, true)
-                    delegate.move(from: (x, y), to: (nx, ny), value: value * 2)
+
                     score += value
-                    return true
-                } else {
-                    return false
+                    NSLog("Move(with merge): \((x, y)) => \((nx, ny))")
+                    return MoveInfo(from: (x, y), to: (nx, ny), value: value * 2)
                 }
             default:
-                return false
+                break
             }
         }
-
-        return true
+        
+        return nil
     }
     
     func getNextPosition(position: (Int, Int), command: MoveCommand) -> (Int, Int) {
@@ -214,7 +223,6 @@ class GameModel : NSObject {
         }
     }
     
-    
     // タイルを表現する列挙型
     enum Tile {
         case Empty
@@ -229,11 +237,22 @@ class GameModel : NSObject {
         case Left
     }
     
-    // コマンド
+    // ゲームモデルを動かすためのコマンド
     struct MoveCommand {
         var direction: Direction
         init(direction d: Direction) {
             direction = d
+        }
+    }
+    
+    struct MoveInfo {
+        var from: (Int, Int)
+        var to: (Int, Int)
+        var value: Int
+        init(from f: (Int, Int), to t: (Int, Int), value v: Int) {
+            from = f
+            to = t
+            value = v
         }
     }
     
