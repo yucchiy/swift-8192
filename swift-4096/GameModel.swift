@@ -188,7 +188,6 @@ class GameModel : NSObject, GameboardViewProtocol {
                 // そのまま移動
                 gameboard[y, x] = Tile.Empty
                 gameboard[ny, nx] = Tile.Tile(value, merged)
-                NSLog("Move: \((x, y)) => \((nx, ny))")
                 return MoveInfo(from: (x, y), to: (nx, ny), value: value)
             case let .Tile(value_, merged_):
                 if (!merged && !merged_ && value == value_) {
@@ -198,7 +197,6 @@ class GameModel : NSObject, GameboardViewProtocol {
                     gameboard[ny, nx] = Tile.Tile(value * 2, true)
 
                     score += value
-                    NSLog("Move(with merge): \((x, y)) => \((nx, ny))")
                     return MoveInfo(from: (x, y), to: (nx, ny), value: value * 2)
                 }
             default:
